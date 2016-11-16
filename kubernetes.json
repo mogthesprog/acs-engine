@@ -6,34 +6,39 @@
     },
     "masterProfile": {
       "count": 1,
-      "dnsPrefix": "beans",
-      "vmSize": "Standard_D2_v2"
+      "vmSize": "Standard_A3",
+            "vnetSubnetId": "/subscriptions/2b0ef0e8-687f-40f0-9535-5a11f4c7ab89/resourceGroups/CENGUK-PRD-INFRA-02/providers/Microsoft.Network/virtualNetworks/CENGUK-VNET-01/subnets/SN-PRD-ANLS-VN-01",
+      "firstConsecutiveStaticIP": "10.0.3.100",
+            "dnsPrefix": "cenguk-kube-01-master"
     },
     "agentPoolProfiles": [
+
       {
-        "name": "agentpool1",
+        "name": "pool2",
         "count": 3,
-        "vmSize": "Standard_D2_v2",
-        "availabilityProfile": "AvailabilitySet"
-      }
-    ],
+        "vmSize": "Standard_D12_v2",
+                "vnetSubnetId": "/subscriptions/2b0ef0e8-687f-40f0-9535-5a11f4c7ab89/resourceGroups/CENGUK-PRD-INFRA-02/providers/Microsoft.Network/virtualNetworks/CENGUK-VNET-01/subnets/SN-PRD-ANLS-VN-01",
+                "availabilityProfile": "AvailabilitySet"},
+      {
+        "name": "pool1",
+        "count": 3,
+        "vmSize": "Standard_D12_v2",
+                "vnetSubnetId": "/subscriptions/2b0ef0e8-687f-40f0-9535-5a11f4c7ab89/resourceGroups/CENGUK-PRD-INFRA-02/providers/Microsoft.Network/virtualNetworks/CENGUK-VNET-01/subnets/SN-PRD-ANLS-VN-01",
+                "availabilityProfile": "AvailabilitySet"}          ],
     "linuxProfile": {
-      "adminUsername": "azureuser",
+      "adminUsername": "cenguk-sshadmin",
       "ssh": {
         "publicKeys": [
           {
-            "keyData": "beans"
+            "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClZXrM1UdC28wbWKjBrYMe21LHfTh3QG9LXmqBKvBaZ2ZzwTF8mIa84zwaqor8F3oEOo2yX+C/TMxZ8i0QH8nYqiM2bVw++j0dN/+pJ5cs3pwl/5WLpKRfrM0GkRylptpVr5RpVzDu+ZQUMsr0pHjHSQ4wrMjSmyOZAqKa/S4Ps3X4ow003s6AEYg99dxO2CXBtgcbEP3QkLgqfr8S0ag9c5QgZ7UaZtItz2WmH/nFW2zP1EXaT/8u64+IDAyS4oJDHtF5H9Rd16BOnQ4o52gE2V/gjjEqYZ9wW1gzMfzlcQwwQT4v4QJn6sL2bY3yDNmZc8IJSN0LKTvmEqQpCrGr"
           }
         ]
       }
     },
     "servicePrincipalProfile": {
-      "servicePrincipalClientID": "beans",
-      "servicePrincipalClientSecret": "beans"
-    },
-    "ProxyConfiguration": {
-      "ProxyHost": "testHost",
-      "ProxyPort": "3128"
+      "servicePrincipalClientID": "https://kube.cenguk.dunnhumby.cloud/",
+      "servicePrincipalClientSecret": "dfdd90e190f5e243059cdcb4651ec773058fc81831c00bf58825dfb4d117af55"
     }
   }
 }
+
