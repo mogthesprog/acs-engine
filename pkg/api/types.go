@@ -56,6 +56,13 @@ type Properties struct {
 	JumpboxProfile          JumpboxProfile          `json:"jumpboxProfile"`
 	ServicePrincipalProfile ServicePrincipalProfile `json:"servicePrincipalProfile"`
 	CertificateProfile      CertificateProfile      `json:"certificateProfile"`
+	ProxyConfiguration      ProxyConfiguration      `json:"proxyConfiguration"`
+}
+
+// ProxyConfiguration contains the host and port used to proxy http traffic when deployed to a custom VNET
+type ProxyConfiguration struct {
+	ProxyHost string `json:"proxyHost"`
+	ProxyPort string `json:"proxyPort"`
 }
 
 // ServicePrincipalProfile contains the client and secret used by the cluster for Azure Resource CRUD
@@ -256,6 +263,11 @@ func (m *MasterProfile) IsCustomVNET() bool {
 // IsCustomVNET returns true if the customer brought their own VNET
 func (a *AgentPoolProfile) IsCustomVNET() bool {
 	return len(a.VnetSubnetID) > 0
+}
+
+// HasProxy returns true if the customer needs a proxy configuration
+func (a *Properties) HasProxy() bool {
+	return a.ProxyConfiguration != ProxyConfiguration{}
 }
 
 // IsWindows returns true if the agent pool is windows

@@ -2,9 +2,29 @@
 
 # { { { variable } } }
 
+write_files:
+- path: "/etc/environment"
+  permissions: "0644"
+  owner: "root"
+  content: |
+    export http_proxy=http://{{{proxyHost}}}:{{{proxyPort}}}/
+    export https_proxy=https://{{{proxyHost}}}:{{{proxyPort}}}/
+    export no_proxy="{{{noProxy}}}"
+    export HTTP_PROXY=http://{{{proxyHost}}}:{{{proxyPort}}}/
+    export HTTPS_PROXY=https://{{{proxyHost}}}:{{{proxyPort}}}/
+    export NO_PROXY="{{{noProxy}}}"
+
 runcmd:
 - /usr/bin/curl -sSL --retry 12 --retry-delay 10 https://get.docker.com/ > /tmp/install-docker
 - /bin/bash -c "/bin/bash /tmp/install-docker"
+
+write_files:
+- path: "/etc/systemd/system/docker.service.d/http_proxy_vars.conf"
+  permissions: "0644"
+  owner: "root"
+  content: |
+    [Service]
+    Environment="HTTP_PROXY=http://{{{proxyHost}}}:{{{proxyPort}}}/" "HTTPS_PROXY=https://{{{proxyHost}}}:{{{proxyPort}}}/"
 
 write_files:
 - path: "/etc/systemd/system/docker.service.d/clear_mount_propagation_flags.conf"

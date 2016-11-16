@@ -7,12 +7,33 @@ packages:
  - jq
  - traceroute
 
+write_files:
+- path: "/etc/environment"
+  permissions: "0644"
+  owner: "root"
+  content: |
+    export http_proxy=http://{{{proxyHost}}}:{{{proxyPort}}}/
+    export https_proxy=https://{{{proxyHost}}}:{{{proxyPort}}}/
+    export no_proxy="{{{noProxy}}}"
+    export HTTP_PROXY=http://{{{proxyHost}}}:{{{proxyPort}}}/
+    export HTTPS_PROXY=https://{{{proxyHost}}}:{{{proxyPort}}}/
+    export NO_PROXY="{{{noProxy}}}"
+
 runcmd:
 - /bin/bash -c "/bin/echo DAEMON_ARGS=--advertise-client-urls ""http://127.0.0.1:2379,http://{{{masterPrivateIp}}}:2379"" --listen-client-urls ""http://0.0.0.0:2379,http://0.0.0.0:4001"" | tee -a /etc/default/etcd"
 - /usr/bin/curl -sSL --retry 12 --retry-delay 10 https://get.docker.com/ > /tmp/install-docker
 - /bin/bash -c "/bin/bash /tmp/install-docker"
 - /usr/bin/curl -sSL --retry 12 --retry-delay 10 https://storage.googleapis.com/kubernetes-release/release/{{{kubectlVersion}}}/bin/linux/amd64/kubectl > /usr/local/bin/kubectl
 - chmod +x /usr/local/bin/kubectl
+
+
+write_files:
+- path: "/etc/systemd/system/docker.service.d/http_proxy_vars.conf"
+  permissions: "0644"
+  owner: "root"
+  content: |
+    [Service]
+    Environment="HTTP_PROXY=http://{{{proxyHost}}}:{{{proxyPort}}}/" "HTTPS_PROXY=https://{{{proxyHost}}}:{{{proxyPort}}}/"
 
 write_files:
 - path: "/etc/systemd/system/docker.service.d/clear_mount_propagation_flags.conf"
@@ -91,7 +112,7 @@ write_files:
         containers:
           - name: "kube-apiserver"
             image: "{{{kubernetesHyperkubeSpec}}}"
-            command: 
+            command:
               - "/hyperkube"
               - "apiserver"
               - "--admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota"
@@ -138,7 +159,7 @@ write_files:
         containers:
           - name: "kube-controller-manager"
             image: "{{{kubernetesHyperkubeSpec}}}"
-            command: 
+            command:
               - "/hyperkube"
               - "controller-manager"
               - "--master=127.0.0.1:8080"
@@ -151,7 +172,7 @@ write_files:
               - "--root-ca-file=/etc/kubernetes/certs/ca.crt"
               - "--service-account-private-key-file=/etc/kubernetes/certs/apiserver.key"
               - "--v=2"
-            volumeMounts: 
+            volumeMounts:
               - name: "etc-kubernetes"
                 mountPath: "/etc/kubernetes"
               - name: "var-lib-kubelet"

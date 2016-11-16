@@ -71,6 +71,12 @@ EOF
 
 set -x
 
+function sourceEtcEnvironment() {
+  if [ -f /etc/environment ]; then
+    source /etc/environment
+  fi
+}
+
 # wait for kubectl to report successful cluster health
 function ensureKubectl() {
     kubectlfound=1
@@ -191,6 +197,7 @@ users:
     set -x
 }
 
+sourceEtcEnvironment
 ensureDocker
 ensureKubelet
 

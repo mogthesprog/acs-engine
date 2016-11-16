@@ -121,6 +121,8 @@ func (t *TemplateGenerator) GenerateTemplate(containerService *api.ContainerServ
 		return "", "", certsGenerated, err
 	}
 
+	fmt.Println(properties)
+
 	templ = template.New("acs template").Funcs(t.getTemplateFuncMap(properties))
 
 	files, baseFile, e := prepareTemplateFiles(properties)
@@ -481,21 +483,21 @@ func getVNETSubnetDependencies(properties *api.Properties) string {
 
 func getVNETSubnets(properties *api.Properties, addNSG bool) string {
 	masterString := `{
-            "name": "[variables('masterSubnetName')]", 
+            "name": "[variables('masterSubnetName')]",
             "properties": {
               "addressPrefix": "[variables('masterSubnet')]"
             }
           }`
 	agentString := `          {
-            "name": "[variables('%sSubnetName')]", 
+            "name": "[variables('%sSubnetName')]",
             "properties": {
               "addressPrefix": "[variables('%sSubnet')]"
             }
           }`
 	agentStringNSG := `          {
-            "name": "[variables('%sSubnetName')]", 
+            "name": "[variables('%sSubnetName')]",
             "properties": {
-              "addressPrefix": "[variables('%sSubnet')]", 
+              "addressPrefix": "[variables('%sSubnet')]",
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('%sNSGName'))]"
               }
@@ -517,22 +519,22 @@ func getVNETSubnets(properties *api.Properties, addNSG bool) string {
 
 func getLBRule(name string, port int) string {
 	return fmt.Sprintf(`	          {
-            "name": "LBRule%d", 
+            "name": "LBRule%d",
             "properties": {
               "backendAddressPool": {
                 "id": "[concat(variables('%sLbID'), '/backendAddressPools/', variables('%sLbBackendPoolName'))]"
-              }, 
-              "backendPort": %d, 
-              "enableFloatingIP": false, 
+              },
+              "backendPort": %d,
+              "enableFloatingIP": false,
               "frontendIPConfiguration": {
                 "id": "[variables('%sLbIPConfigID')]"
-              }, 
-              "frontendPort": %d, 
-              "idleTimeoutInMinutes": 5, 
-              "loadDistribution": "Default", 
+              },
+              "frontendPort": %d,
+              "idleTimeoutInMinutes": 5,
+              "loadDistribution": "Default",
               "probe": {
                 "id": "[concat(variables('%sLbID'),'/probes/tcp%dProbe')]"
-              }, 
+              },
               "protocol": "tcp"
             }
           }`, port, name, name, port, name, port, name, port)
@@ -551,11 +553,11 @@ func getLBRules(name string, ports []int) string {
 
 func getProbe(port int) string {
 	return fmt.Sprintf(`          {
-            "name": "tcp%dProbe", 
+            "name": "tcp%dProbe",
             "properties": {
-              "intervalInSeconds": "5", 
-              "numberOfProbes": "2", 
-              "port": %d, 
+              "intervalInSeconds": "5",
+              "numberOfProbes": "2",
+              "port": %d,
               "protocol": "tcp"
             }
           }`, port, port)
@@ -576,16 +578,16 @@ func getSecurityRule(port int, portIndex int) string {
 	// BaseLBPriority specifies the base lb priority.
 	BaseLBPriority := 200
 	return fmt.Sprintf(`          {
-            "name": "Allow_%d", 
+            "name": "Allow_%d",
             "properties": {
-              "access": "Allow", 
-              "description": "Allow traffic from the Internet to port %d", 
-              "destinationAddressPrefix": "*", 
-              "destinationPortRange": "%d", 
-              "direction": "Inbound", 
-              "priority": %d, 
-              "protocol": "*", 
-              "sourceAddressPrefix": "Internet", 
+              "access": "Allow",
+              "description": "Allow traffic from the Internet to port %d",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "%d",
+              "direction": "Inbound",
+              "priority": %d,
+              "protocol": "*",
+              "sourceAddressPrefix": "Internet",
               "sourcePortRange": "*"
             }
           }`, port, port, port, BaseLBPriority+portIndex)
@@ -598,10 +600,10 @@ func getDataDisks(a *api.AgentPoolProfile) string {
 	var buf bytes.Buffer
 	buf.WriteString("\"dataDisks\": [\n")
 	dataDisks := `            {
-              "createOption": "Empty", 
-              "diskSizeGB": "%d", 
-              "lun": %d, 
-              "name": "[concat(variables('%sVMNamePrefix'), copyIndex(),'-datadisk%d')]", 
+              "createOption": "Empty",
+              "diskSizeGB": "%d",
+              "lun": %d,
+              "name": "[concat(variables('%sVMNamePrefix'), copyIndex(),'-datadisk%d')]",
               "vhd": {
                 "uri": "[concat('http://',variables('storageAccountPrefixes')[mod(add(add(div(copyIndex(),variables('maxVMsPerStorageAccount')),variables('%sStorageAccountOffset')),variables('dataStorageAccountPrefixSeed')),variables('storageAccountPrefixesCount'))],variables('storageAccountPrefixes')[div(add(add(div(copyIndex(),variables('maxVMsPerStorageAccount')),variables('%sStorageAccountOffset')),variables('dataStorageAccountPrefixSeed')),variables('storageAccountPrefixesCount'))],variables('%sDataAccountName'),'.blob.core.windows.net/vhds/',variables('%sVMNamePrefix'),copyIndex(), '--datadisk%d.vhd')]"
               }
